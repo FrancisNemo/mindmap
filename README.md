@@ -2,55 +2,122 @@
 A simple mind map
 
 Java基础
-1、	List 和 Set 的区别
-有序，重复
-List  y, y
-Set  n, n
-这里，不是指数据大小排序，而是有存储结构前后顺序。
-2、	HashSet 是如何保证不重复的
+.   1、	数组和collection
+    数组是静态的，先声明，初始化固定的大小，以后就不能修改。
+    collection接口，实现了数组动态扩容，数据copy至新数组。
+
+    collection实现类之间的区别
+    List 和 Set 的区别
+        有序，重复
+    List  y, y
+    Set  n, n
+    这里，不是指数据大小排序，而是有存储结构前后顺序。
+
+.   2、	HashSet 是如何保证不重复的
 内部hashmap， Key 实现是Object native hashcode，可能会出现碰撞。
 Add/Put的会做处理逻辑：
 
-3、	HashMap 是线程安全的吗，为什么不是线程安全的（最好画图说明多线程环境下不安全）?
-扩容可能会生成环？
-4、HashMap 的扩容过程
-Resize()
-5、HashMap 1.7 与 1.8 的 区别，说明 1.8 做了哪些优化，如何优化的？
-红黑树，
-6、final finally finalize
-7、强引用 、软引用、 弱引用、虚引用
-8、Java反射
-9、Arrays.sort 实现原理和 Collection 实现原理
+.   3、	HashMap 为什么不是线程安全的（画图说明）?
+      扩容可能会生成环
+.   4、HashMap 的扩容过程
+    put对象的的时候，检查hashmap的阀值threadhold (0.75\*total)，Resize()按2\*total倍容量扩容，同时rehash。
+
+.   5、HashMap 1.7 与 1.8 的 区别，说明 1.8 做了哪些优化，如何优化的？
+    增加红黑树，当单个列表超过8的时候，转换为红黑树。
+    Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。1.8在hash高位运算做了优化，通过hashCode()的高16位异或低16位实现的：(h = k.hashCode()) ^ (h >>> 16)
+    http://www.importnew.com/20386.html
+.   6、final finally finalize()
+
+.   7、强引用 、软引用、 弱引用、虚引用
+    强度依次减弱。设计这4个的目的是针对不同的gc条件。。
+    强引用对象不能被gc回收， 是常见是的赋值操作的变量；
+    软引用,在内存不够gc回收
+    弱引用，被标记后gc回收
+    虚引用，扫描到直接gc回收。
+    除强引用外，其他的引用实现都会有关联一个队列.
+
+.   8、Java反射
+    动态获取程序在运行时class信息的一种机制
+    1 obj.getClass();
+    2 任何数据类型（包括基本数据类型）都有一个“静态”的class属性
+    3 通过Class类的静态方法：forName（String  className）(常用)
+
+.   9、Arrays.sort 实现原理和 Collection 实现原理
+
 10、LinkedHashMap的应用
 11、cloneable接口实现原理
+
 12、异常分类以及处理机制
+    编译时受检，
+    运行时不受检
 13、wait和sleep的区别
+
+线程状态
+NEW, 
+    RUNNABLE, 
+        BLOCKED, 
+        WAITING, 
+        TIMED_WAITING, 
+TERMINATED
+
+BLOCKED是等待获得对象锁进入临界区.
+WAITING是调用了不带时间object.wait(), thread.join(), LockSupport.park()
+TIMED_WAITING是调用了待时间的 或者 thread.sleep(long)
+
+    wait释放锁 并进入对象的等待队列
+    sleep保留锁,
+    park对比wait不需要获得锁就可以让线程WAITING，通过unpark唤醒
+
+
+
 14、数组在内存中如何分配
-Java 并发
-1、synchronized 的实现原理以及锁优化？
+
+JVM
+1、synchronized 的实现原理, 静态方法和普通方法的区别, 锁优化，与lock 有什么区别？
+    JVM对象监视器，monitorEnter 和 monitorExit指令控制。
+    修饰静态方法，则锁住类（所有的对象）。
+    修饰普通方法，则锁住当前的对象。（缺点：粒度太粗，其他的线程调用该对象的其他同步方法也会被锁住）
+    修饰方法中的代码块，锁住当前代码块。
+    
 2、volatile 的实现原理？
-3、Java 的信号灯？
-4、synchronized 在静态方法和普通方法的区别？
-5、怎么实现所有线程在等待某个事件的发生才会去执行？
+
+原子类
 6、CAS？CAS 有什么缺陷，如何解决？
-7、synchronized 和 lock 有什么区别？
-8、Hashtable 是怎么加锁的 ？
-9、HashMap 的并发问题？
-10、ConcurrenHashMap 介绍？1.8 中为什么要用红黑树？
+    对比交换，实现原子操作
+    ABA 问题
 11、AQS
+
+
+锁
+21、lock Condition接口及其实现原理
 12、如何检测死锁？怎么预防死锁？
+预防： tryLock
+
 13、Java 内存模型？
-14、如何保证多线程下 i++ 结果正确？
+一组指令定义了jvm执行方式
+
 15、线程池的种类，区别和使用场景？
 16、分析线程池的实现原理和线程的调度过程？
 17、线程池如何调优，最大数目如何确认？
-18、ThreadLocal原理，用的时候需要注意什么？
-19、CountDownLatch 和 CyclicBarrier 的用法，以及相互之间的差别?
-20、LockSupport工具
-21、Condition接口及其实现原理
+18、ThreadLocal原理，需要注意什么？
+
+
+同步器
+19、CountDownLatch ，semphore, CyclicBarrier 的用法，以及相互之间的差别?
+
+
+并发容器
+8、Hashtable 是怎么加锁的？
+9、HashMap 并发问题？
+    出现环问题
+10、ConcurrenHashMap 介绍？1.8 中为什么要用红黑树？
+
+
 22、Fork/Join框架的理解
-23、分段锁的原理,锁力度减小的思考
+
 24、八种阻塞队列以及各个阻塞队列的特性
+
+
 Spring
 1、BeanFactory 和 FactoryBean？
 2、Spring IOC 的理解，其初始化过程？
@@ -118,6 +185,8 @@ Post 写，不幂等
 7、Redis集群，高可用，原理
 8、Redis缓存分片
 9、Redis的数据淘汰策略
+
+
 JVM
 1、详细jvm内存模型
 2、讲讲什么情况下回出现内存溢出，内存泄漏？
